@@ -13,6 +13,8 @@ public:
 		key = 0;
 	}
 
+	int getKey() { return key; }
+
 	static int getHeight(Node* x) {
 		if (x == nullptr) return -1;
 		else return x->height;
@@ -27,15 +29,17 @@ public:
 		return false;
 	}
 
-	bool search(int n) {
+	bool isRoot() { return parent == nullptr; }
+
+	Node* search(int n) {
 		Node* x = this;
 
 		while (x != nullptr)
 			if (n < x->key) x = x->left;
 			else if (n > x->key) x = x->right;
-			else return true;
+			else return x;
 
-		return false;
+		return nullptr;
 	}
 
 	void insert(int n) {
@@ -166,5 +170,86 @@ public:
 		}
 
 		return nullptr;
+	}
+
+	bool remove(int n) {
+		Node* x = search(n);
+
+		while (x != nullptr) {
+			if (x->left == nullptr && x->right == nullptr) {
+				if (!x->isRoot()) {
+					if (x->childDirection()) x->parent->left = nullptr;
+					else x->parent->right = nullptr;
+				}
+				delete x;
+				return true;
+			}
+			else if (x->left != nullptr && x->right != nullptr) {
+				Node* s = x->succesor();
+				x->key = s->key;
+				s->key = n;
+				x = s;
+			}
+			else {
+				Node* c;
+				
+				if (x->left == nullptr) c = x->right;
+				else c = x->left;
+
+				if (!x->isRoot()) {
+					if (x->childDirection()) x->parent->left = c;
+					else x->parent->right = c;
+				}
+				c->parent = x->parent;
+
+				delete x;
+				return true;
+			}
+		}
+
+		return false;
+	}
+};
+
+static class AVL {
+private:
+	Node* root;
+public:
+	AVL() {
+		root = nullptr;
+	}
+
+	void insert(int n) {
+		if (root == nullptr) root = new Node(n);
+		else root->insert(n);
+	}
+
+	Node* succesor(Node* x) {
+		return x->succesor();
+	}
+
+	Node* predecessor(Node* x) {
+		return x->predecessor();
+	}
+
+	bool remove(int n) {
+		return root->remove(n);
+	}
+
+	bool find(int n) {
+		return root->search(n) != nullptr;
+	}
+
+	void print(std::ostream& os, int start, int end) {
+		Node* s = root->search(start);
+		while (s == nullptr) {
+			start++;
+			s = root->search(start);
+		}
+		while (s->getKey() <= end) {
+			os << s->getKey() << " ";
+			s = s->succesor();
+		}
+		os << "\n";
 	}
 };
