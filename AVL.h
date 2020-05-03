@@ -10,7 +10,7 @@ public:
 	Node(int n) {
 		parent = left = right = nullptr;
 		height = 0;
-		key = 0;
+		key = n;
 	}
 
 	int getKey() { return key; }
@@ -23,6 +23,10 @@ public:
 	static int getHeightDiff(Node* x) {
 		return getHeight(x->left) - getHeight(x->right);
 	}
+
+	Node* getLeft() { return left; }
+
+	Node* getRight() { return right; }
 
 	bool childDirection() {
 		if (parent->left == this) return true;
@@ -65,14 +69,14 @@ public:
 		Node* p = parent, * r = right;
 		
 		right = r->left;
-		r->left->parent = this;
+		if(right != nullptr) r->left->parent = this;
 
 		parent = r;
 		r->left = this;
 
 		r->parent = p;
 		if (p != nullptr) {
-			if (p->left = this) p->left = r;
+			if (childDirection() > 0) p->left = r;
 			else p->right = r;
 		}
 	}
@@ -81,14 +85,14 @@ public:
 		Node* p = parent, * l = left;
 
 		left = l->right;
-		l->right->parent = this;
+		if (left != nullptr) l->right->parent = this;
 
 		parent = l;
 		l->right = this;
 
 		l->parent = p;
 		if (p != nullptr) {
-			if (p->left = this) p->left = l;
+			if (childDirection() > 0) p->left = l;
 			else p->right = l;
 		}
 	}
@@ -219,34 +223,38 @@ public:
 		root = nullptr;
 	}
 
+	//1
 	void insert(int n) {
 		if (root == nullptr) root = new Node(n);
 		else root->insert(n);
 	}
 
-	Node* succesor(Node* x) {
-		return x->succesor();
-	}
-
-	Node* predecessor(Node* x) {
-		return x->predecessor();
-	}
-
+	//2
 	bool remove(int n) {
-		return root->remove(n);
+		if (root->remove(n)) {
+			Node* x = root;
+			while (abs(Node::getHeightDiff(x)) > 1) {
+				if (Node::getHeightDiff(x) > 0) x = x->getLeft();
+				else x = x->getRight();
+			}
+			x->balance();
+		}
+		else return false;
 	}
 
-	bool find(int n) {
-		return root->search(n) != nullptr;
+	//3
+	Node* find(int n) {
+		return root->search(n);
 	}
 
+	//6
 	void print(std::ostream& os, int start, int end) {
 		Node* s = root->search(start);
 		while (s == nullptr) {
 			start++;
 			s = root->search(start);
 		}
-		while (s->getKey() <= end) {
+		while (s != nullptr && s->getKey() <= end) {
 			os << s->getKey() << " ";
 			s = s->succesor();
 		}
