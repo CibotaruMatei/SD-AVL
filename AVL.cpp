@@ -24,15 +24,15 @@ int main()
             break;
         case 3:
             f >> x;
-            g << (a.find(x) == nullptr);
+            g << (a.find(x) != nullptr) << "\n";
             break;
         case 4:
             f >> x;
-            g << a.find(x)->predecessor();
+            g << a.predecessor(x)->getKey() << "\n";
             break;
         case 5:
             f >> x;
-            g << a.find(x)->succesor();
+            g << a.successor(x)->getKey() << "\n";
             break;
         case 6:
             int y;

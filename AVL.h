@@ -28,6 +28,8 @@ public:
 
 	Node* getRight() { return right; }
 
+	Node* getParent() { return parent; }
+
 	bool childDirection() {
 		if (parent->left == this) return true;
 		return false;
@@ -115,10 +117,10 @@ public:
 				else {
 					hdif = getHeightDiff(x->right);
 					if (hdif < 0) {
-						x->right->RRotate();
 						x->LRotate();
 					}
 					else {
+						x->right->RRotate();
 						x->LRotate();
 					}
 				}
@@ -223,10 +225,23 @@ public:
 		root = nullptr;
 	}
 
+	int getMin() {
+		Node* x = root;
+		while (x->getLeft() != nullptr) x = x->getLeft();
+		return x->getKey();
+	}
+
+	int getMax() {
+		Node* x = root;
+		while (x->getRight() != nullptr) x = x->getRight();
+		return x->getKey();
+	}
+
 	//1
 	void insert(int n) {
 		if (root == nullptr) root = new Node(n);
 		else root->insert(n);
+		while (root->getParent() != nullptr) root = root->getParent();
 	}
 
 	//2
@@ -245,6 +260,40 @@ public:
 	//3
 	Node* find(int n) {
 		return root->search(n);
+	}
+
+	//4
+	Node* predecessor(int n) {
+		Node* x = root->search(n);
+		int min = getMin();
+
+		if (x != nullptr) return x->predecessor();
+		else {
+			n--;
+			while (x == nullptr && n >= min) {
+				x = root->search(n);
+				n--;
+			}
+		}
+
+		return x;
+	}
+
+	//5
+	Node* successor(int n) {
+		Node* x = root->search(n);
+		int max = getMax();
+
+		if (x != nullptr) return x->succesor();
+		else {
+			n++;
+			while (x == nullptr && n <= max) {
+				x = root->search(n);
+				n++;
+			}
+		}
+
+		return x;
 	}
 
 	//6
